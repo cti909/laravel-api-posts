@@ -17,7 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class AuthController extends Controller
@@ -29,44 +29,43 @@ class AuthController extends Controller
         // except la loai tru ra
         $this->middleware('auth:api', ['except' => ['login', 'refresh', 'register', 'me']]);
     }
-    // public function me(Request $request): JsonResponse
-    // {
-    //     try {
-    //         $user = null;
-    //         $data = null;
-    //         // Lấy giá trị của header "Authorization"
-    //         $authHeader = $request->header('Authorization');
-    //         // Kiểm tra xem header có chứa từ "Bearer " không
-    //         if (strpos($authHeader, 'Bearer ') === 0) {
-    //             // Lấy JWT token bằng cách loại bỏ phần "Bearer " khỏi header
-    //             $jwtToken = substr($authHeader, 7);
-    //             try {
-    //                 $user = JWTAuth::parseToken()->authenticate($jwtToken);
-    //                 // ...
-    //             } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-    //                 // ...
-    //             } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-    //                 // ...
-    //             } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-    //                 // ...
-    //             }
-    //         }
-    //         if ($user) {
-    //             $data = User::findOrFail($user->id);
-    //         }
-    //         return $this->success(
-    //             $request,
-    //             $data,
-    //             "Get auth sucess"
-    //         );
-    //     } catch (\Throwable $th) {
-    //         return $this->error(
-    //             $request,
-    //             $th,
-    //             "Get auth failed"
-    //         );
-    //     }
-    // }
+    public function me(Request $request): JsonResponse
+    {
+        try {
+            $user = null;
+            $data = null;
+            $authHeader = $request->header('Authorization');
+            // Kiểm tra xem header có chứa từ "Bearer " không
+            if (strpos($authHeader, 'Bearer ') === 0) {
+                // Lấy JWT token bằng cách loại bỏ phần "Bearer " khỏi header
+                $jwtToken = substr($authHeader, 7);
+                try {
+                    $user = JWTAuth::parseToken()->authenticate($jwtToken);
+                } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+                    // ...
+                } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+                    // ...
+                } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+                    // ...
+                }
+            }
+            // dd($user);
+            if ($user) {
+                $data = User::findOrFail($user->id);
+            }
+            return $this->success(
+                $request,
+                $data,
+                "Get auth sucess"
+            );
+        } catch (\Throwable $th) {
+            return $this->error(
+                $request,
+                $th,
+                "Get auth failed"
+            );
+        }
+    }
     public function login(LoginRequest $request): JsonResponse
     {
         try {

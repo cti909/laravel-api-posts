@@ -32,6 +32,7 @@ class CommentRepository extends BaseRepository implements ICommentRepository
             ->orderBy($options['column'], $options['orderBy'])
             ->groupBy('comments.id')
             ->get();
+        // dd($query);
         return $query;
     }
 

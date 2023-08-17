@@ -47,12 +47,13 @@ class AuthService extends BaseService implements IAuthService
         // tạo RA 1 TOKEN để gửi về client thông qua jwt
         // khi người dùng đưa lên mà không đúng thì 400 -> BadRequest
         $user = null;
-        $token = "";
+        $refreshToken = "";
+        $accessToken = "";
         if ($isLogin) {
             $user = Auth::user();
             $user = Auth::user();
             $refreshToken = JWTAuth::fromUser($user); // Tạo refresh token
-            $accessToken = auth('api')->attempt($credentials);
+            $accessToken = auth('api')->setTTL(60)->attempt($credentials);
         }
         $data = [
             "isLogin" => $isLogin,
@@ -66,7 +67,7 @@ class AuthService extends BaseService implements IAuthService
     {
         $refreshToken = request('refreshToken');
         $newToken = JWTAuth::refresh($refreshToken);
-        dd( $newToken);
+        // dd($newToken);
         return $newToken;
     }
     public static function register(RegisterRequest $request)
